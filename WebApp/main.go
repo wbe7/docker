@@ -1,17 +1,23 @@
 package main
 
 import (
-    "fmt"
-    "log"
-    "net/http"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
+	env := os.Getenv("ENVIROMENT")
+	fmt.Fprintf(w, "Hi there from %s, I love %s!", env, r.URL.Path[1:])
 	log.Printf("Request from %s on Path /%s", r.RemoteAddr, r.URL.Path[1:])
 }
 
 func main() {
-    http.HandleFunc("/", handler)
-    log.Fatal(http.ListenAndServe(":8080", nil))
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("Port is not set")
+	}
+	http.HandleFunc("/", handler)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
